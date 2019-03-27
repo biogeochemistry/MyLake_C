@@ -1,4 +1,4 @@
-function [DOC_new,DOC1frac,DOC2frac,DOC3frac,Kd_new,Daily_BB1,Daily_BB2,Daily_BB3,Daily_PB]=fokema_new(DOCz1,DOCz2,DOCz3,~,Q0,T,~,Date,Depth,Qlambda,O2,k_DOC1,k_DOC2,theta_cold,theta_warm,theta_cool)
+function [DOC_new,DOC1frac,DOC2frac,DOC3frac,Kd_new,Daily_BB1,Daily_BB2,Daily_BB3,Daily_PB]=fokema_new_gases(DOCz1,DOCz2,DOCz3,~,Q0,T,~,Date,Depth,Qlambda,O2,k_DOC1,k_DOC2,theta_cold,theta_warm,theta_cool,Az,Vz)
 
 %Fokema model code for MyLake model 04.10.2010
 
@@ -14,8 +14,6 @@ function [DOC_new,DOC1frac,DOC2frac,DOC3frac,Kd_new,Daily_BB1,Daily_BB2,Daily_BB
 temp_switch = 1;
 %wavelength=300:1:800;
 albedo=0.06;
-%theta_warm = 1.047;
-%theta_cool = 1.10;
 T_warm_cold = 10;
     
 %New values Aarnos 10.12.2008
@@ -32,17 +30,24 @@ DDOP=Qlambda(1:501,Date);
 AQY=aqy_func;
 
 %Daily dose of photons in air (mol m-2 d-1 nm-1); 11,574 converts MJ d-1 to W
-DDOPIA=11.574.*Q0.*DDOP;
+DDOPIA=Q0.*DDOP;%DDOPIA=11.574.*Q0.*DDOP;
 
 %Daily dose of photons below the surface (mol m-2 d-1)
-DDOPBS=DDOPIA.*(1-albedo);
+DDOPBS=DDOPIA;%DDOPBS=DDOPIA.*(1-albedo);
 
 %Daily photomineralization (mol C m-2 d-1 nm-1)
 DPBs=DDOPBS(1:501).*AQY;
 
-%Daily photomineralization (g C m-3 d-1)
-DPB=sum(DPBs).*12./2; %mol -> g transformation for C. Mineralization happens in a 2m layer
+dz = Depth(2)-Depth(1);
+if(dz<1)
+    volfactor = Az(1)/(Vz(1)+Vz(2));
+else
+    volfactor = Az(1)/(Vz(1)/dz);
+end
 
+%Daily photomineralization (g C m-3 d-1)
+DPB=1000*12*sum(DPBs)*volfactor;%DPB=sum(DPBs).*12./2; %mol -> mg transformation for C. Mineralization happens in a 1m layer
+%DPB = 2*100*DPB;
 %Temperature correction using Arrhenius equation k=Aexp(-Ea/(RT))
 %Ea=25; %kJ/mol Mineralisation activation energy
 Ea=20650; %J/mol Aarnos 10.12.2008
@@ -129,9 +134,9 @@ for index=1:length(Depth)
             BD2(index) = O2_fact*(1-exp(-BDC2)).*theta.^(T(index)-20);
             BD3(index) = O2_fact*(1-exp(-BDC3)).*theta.^(T(index)-20);
         else
-            BD1(index) = O2_fact*(1-exp(-BDC1)).*( theta_cool^(-16) ).*theta_cold.^(max(0,T(index))-4);%exp(theta_cold.*(4-max(0,T(index))));
-            BD2(index) = O2_fact*(1-exp(-BDC2)).*( theta_cool^(-16) ).*theta_cold.^(max(0,T(index))-4);%exp(theta_cold.*(4-max(0,T(index))));
-            BD3(index) = O2_fact*(1-exp(-BDC3)).*( theta_cool^(-16) ).*theta_cold.^(max(0,T(index))-4);%exp(theta_cold.*(4-max(0,T(index))));
+            BD1(index) = O2_fact*(1-exp(-BDC1)).*( theta_cool^(-16) ).*theta_cold.^(max(0,T(index))-4);
+            BD2(index) = O2_fact*(1-exp(-BDC2)).*( theta_cool^(-16) ).*theta_cold.^(max(0,T(index))-4);
+            BD3(index) = O2_fact*(1-exp(-BDC3)).*( theta_cool^(-16) ).*theta_cold.^(max(0,T(index))-4);
         end
         Daily_BB1(index) = DOCz1(index).*BD1(index);
         Daily_BB2(index) = DOCz2(index).*BD2(index);
@@ -177,7 +182,7 @@ end
 %        DOCz_new(index)=0;
 %end
 %end
-%keyboard
+%if(Date==7);keyboard;end
 DOC_new=DOC_new';
 DOC1frac = DOC1frac';
 DOC2frac = DOC2frac';

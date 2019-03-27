@@ -1,4 +1,4 @@
-function [CO2aq,CO2frac] = carbonequilibrium(DICz,Tz,pH)
+function [CO2aq,CO2frac,M_DIC] = carbonequilibrium(DICz,Tz,pH)
 %Calculates the fractions of dissolved inorganic carbon
 %Inputs
 %pH          pH

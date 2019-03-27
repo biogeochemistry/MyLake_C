@@ -9,7 +9,7 @@
 % Modified by PK 30.12.2010 (DIC) & 14.02.2011 (O2) & 03.11.2015 (POC)
 
 function [Tz,Cz,Sz,Pz,Chlz,PPz,DOPz,DOCz1,DOCz2,DOCz3,DICz,O2z,POCz1,POCz2,Hplusz,CO2z] = ...
-    convection_v12_1aIC(Tz_in,Cz_in,Sz_in,Pz_in,Chlz_in,PPz_in,DOPz_in,DOCz1_in,DOCz2_in,DOCz3_in,DICz_in,O2z_in,POCz1_in,POCz2_in,Hplusz_in,CO2z_in,Tprof_prev,Vz,Cw,f_par,lambdaz_wtot_avg,zz,swa_b0,tracer_switch,springautumn,i)
+    convection_v12_1aIC_gases(Tz_in,Cz_in,Sz_in,Pz_in,Chlz_in,PPz_in,DOPz_in,DOCz1_in,DOCz2_in,DOCz3_in,DICz_in,O2z_in,POCz1_in,POCz2_in,Hplusz_in,CO2z_in,Tprof_prev,Vz,Cw,f_par,lambdaz_wtot_avg,zz,swa_b0,tracer_switch,springautumn,i)
 
 % Inputs (with extension "_in") and Outputs:
 %       Tz   : Temperature profile
@@ -134,7 +134,7 @@ if (springautumn==1)
             Tz_in(Dummy(1))=Trhomax+intSign*XE_turn(Dummy(1))/(Vz(Dummy(1))*Cw);
         end
         
-      [CO2z_in,DICz_in,Hplusz_in] = DICsystem_new(DICz_in,CO2z_in,Tz_interm,Tz_in,Hplusz_in,i)  ;
+      [CO2z_in,DICz_in,Hplusz_in] = DICsystem_new_gases(DICz_in,CO2z_in,Tz_interm,Tz_in,Hplusz_in,i)  ;
       
       %Voi olla tilanne, ett‰ j‰‰t‰ vasten oleva kerros ei l‰mpene yli 4
       %asteen mutta seuraava l‰mpenee, jolloin konvektio estyy.
